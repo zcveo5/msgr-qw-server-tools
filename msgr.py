@@ -1,5 +1,3 @@
-import json
-
 import hashlib
 import tkinter
 import shutil
@@ -222,6 +220,8 @@ class Settings:
         teem_button.pack(anchor='nw', padx=3)
         Button(self.window_other, text='cut BTAEML', command=cut_mod,
                                 bg=default_bg, fg=default_fg, font=font_theme).pack(anchor='nw', padx=3)
+        Button(self.window_other, text='LowLevel Update', command=upd_ll ,
+               bg=default_bg, fg=default_fg, font=font_theme).pack(anchor='nw', padx=3)
 
     @staticmethod
     def sub_f_mod_rep():
@@ -260,7 +260,7 @@ class Settings:
                 mods_select.get(mods_select.curselection())
             except TclError:
                 return
-            mod_data = auth._request({'action': f'get_mod:{mods_select.get(mods_select.curselection())}'})
+            mod_data = auth.raw_request({'action': f'get_mod:{mods_select.get(mods_select.curselection())}'})
             down_mod = str(mod_data['answer'])
             print(down_mod)
             down_mod = down_mod.replace('&@', '\n')
@@ -276,7 +276,7 @@ class Settings:
                 pass
             with open(f'./plugins/{compiled["meta"]["name"]}/{compiled["meta"]["file"]}.py', 'w'):
                 pass
-            json.dump(compiled['meta'], open(f'./plugins/{compiled["meta"]["name"]}/metadata.json', 'w'))
+            json.dump(compiled['meta'], JsonObject(open(f'./plugins/{compiled["meta"]["name"]}/metadata.json', 'w')))
             open(f'./plugins/{compiled["meta"]["name"]}/{compiled["meta"]["file"]}.py', 'w').write(compiled['code'].replace('%TAB', '	'))
         def remove_mod():
             nonlocal installed_var
@@ -311,6 +311,10 @@ class Settings:
         name_mod.place(x=500, y=60)
         modl_win.geometry('900x500')
         modl_win.resizable(False, False)
+
+def upd_ll():
+    base_conf['RUNT_ACTION'] = 'LL_Update'
+
 
 def exit_acc():
     user_local_settings['USER_SETTINGS']['USERNAME'] = ''
@@ -422,7 +426,7 @@ def debugtools():
                command=lambda: _show('log', open('./data/log.log', 'r').read())).grid(column=1, row=15)
     ttk.Button(debugger, text='bt data',
                command=lambda: _show('inf', f'DATA\n{bt_server_data}\nUSER\n{username}')).grid(column=1, row=19)
-    ttk.Button(debugger, text='relogin',
+    ttk.Button(debugger, text='re login',
                command=lambda: relog()).grid(column=1, row=21)
     ttk.Button(debugger, text='set enc',
                command=lambda: change_enc(cmd.get("0.0", "end"))).grid(column=1, row=16)
@@ -460,7 +464,7 @@ def plug_create():
 
         conf = SNConfig('').dump(dist).replace('\n', '&@')
 
-        answer = auth._request({'action': 'upload_mod', 'MOD_NAME': metadata['name'], 'PLUG_CODE': conf})
+        answer = auth.raw_request({'action': 'upload_mod', 'MOD_NAME': metadata['name'], 'PLUG_CODE': conf})
         if answer['answer'] == 'uploaded':
             _show('Info', 'Uploaded')
         else:
@@ -722,7 +726,7 @@ def reinit_ui():
     update = Button(text=locale['refresh_butt'], command=refresh, bg=default_bg, fg=default_fg, font=font_theme)
     update.place(x=520, y=450)
 
-    send_entry = Entry(width=110, bg=default_bg, fg=default_fg, font=font_theme, textvariable=my_message) 
+    send_entry = Entry(width=110, bg=default_bg, fg=default_fg, font=font_theme, textvariable=my_message)
     send_entry.bind("<Return>", send_message)
     send_entry.place(x=0, y=400)
 
@@ -842,7 +846,7 @@ def change_username(a):
 
 
 if 'run.pyw' in sys.argv[0]:
-    print('MSGR QW BY BEBRATECH, WITH BTAE')
+    print('MSGR QW BY BEBRA TECH, WITH BTAE')
     default_bg = 'black'
     default_fg = 'white'
     font_theme = ('Consolas', 9)
@@ -1156,4 +1160,4 @@ if 'run.pyw' in sys.argv[0]:
     with open('./data/DATA.NC', 'w', encoding='windows-1251') as fl:
         fl.write(encrypt(dat.dump(dat_d), eval(base_conf['CC'])))
 
-print('finishing')
+print('finish')

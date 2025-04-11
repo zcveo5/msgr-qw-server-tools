@@ -21,7 +21,7 @@ def handle_client(client_socket):
     while True:
         try:
             try:
-                message = client_socket.recv(1024).decode('utf-8')
+                message = client_socket.recv(100000).decode('utf-8')
             except ConnectionResetError:
                 print('Client close his connection')
                 message = ''
@@ -43,7 +43,6 @@ def handle_client(client_socket):
                         ans = {'status': 'ok', 'answer': 'blocked'}
             if 'action' in data_recv:
                 if data_recv['action'].split(':')[0] == 'update_data':
-                    print('upddata')
                     if data_recv['action'].split(':')[1] not in data[data_recv['username']]:
                         if data_recv['action'].split(':')[1] != 'global_block':
                             print('adding')
